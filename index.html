@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Corrina · 364</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #2a3d6b;
+    --red: #b5321a;
+    --cream: #f5f0e8;
+    --cream-dark: #ede5d8;
+    --gold: #c4932a;
+    --text: #1a1a1a;
+    --muted: #888070;
+    --grid: #d8d0c0;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 28px 16px 16px; text-align: center; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--navy); letter-spacing: 0.05em; }
+  header p { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+  .tagline { display: inline-block; margin-top: 8px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.8rem; color: var(--gold); border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); padding: 3px 12px; }
+
+  .tabs { display: flex; border-bottom: 2px solid var(--navy); margin-bottom: 16px; }
+  .tab { flex: 1; padding: 10px 4px; text-align: center; font-family: 'Playfair Display', serif; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+  .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .section-label { font-family: 'Playfair Display', serif; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--grid); }
+
+  .day-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 16px 0; }
+  .day-nav button { background: var(--navy); color: var(--cream); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .day-display { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--navy); min-width: 150px; text-align: center; }
+  .day-display span { display: block; font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+  .moment-box { background: var(--white); border: 1px solid var(--grid); border-radius: 4px; padding: 12px; width: 100%; }
+  .moment-box textarea { width: 100%; border: none; outline: none; resize: none; font-family: 'Crimson Pro', serif; font-size: 1rem; color: var(--text); background: transparent; line-height: 1.6; min-height: 56px; }
+  .moment-box textarea::placeholder { color: var(--muted); font-style: italic; }
+
+  .habit-label-row { font-family: 'Playfair Display', serif; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 8px 0 4px; display: flex; align-items: center; gap: 8px; }
+  .habit-label-row.good { color: var(--navy); }
+  .habit-label-row.bad { color: var(--red); }
+  .habit-label-row::after { content: ''; flex: 1; height: 1px; }
+  .habit-label-row.good::after { background: var(--navy); opacity: 0.3; }
+  .habit-label-row.bad::after { background: var(--red); opacity: 0.3; }
+
+  .habit-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; margin-bottom: 4px; border-radius: 4px; background: var(--white); border: 1px solid var(--grid); cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .habit-row.good.checked { background: var(--navy); border-color: var(--navy); }
+  .habit-row.bad.checked { background: var(--red); border-color: var(--red); }
+  .habit-name { font-family: 'Crimson Pro', serif; font-size: 1rem; color: var(--text); }
+  .habit-row.checked .habit-name { color: var(--white); }
+  .habit-check { width: 22px; height: 22px; border-radius: 2px; border: 1.5px solid var(--grid); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .habit-row.good .habit-check { border-color: var(--navy); }
+  .habit-row.bad .habit-check { border-color: var(--red); }
+  .habit-row.checked .habit-check { background: rgba(255,255,255,0.2); border-color: transparent; }
+  .checkmark { color: white; font-size: 13px; display: none; }
+  .habit-row.checked .checkmark { display: block; }
+
+  .graph-inputs { display: flex; gap: 12px; margin-bottom: 4px; }
+  .graph-input-box { flex: 1; background: var(--white); border: 1px solid var(--grid); border-radius: 4px; padding: 10px 12px; }
+  .graph-input-box label { display: block; font-family: 'Playfair Display', serif; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .graph-input-box input { width: 100%; border: none; outline: none; font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); background: transparent; -moz-appearance: textfield; }
+  .graph-input-box input::-webkit-outer-spin-button, .graph-input-box input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .graph-input-box .unit { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+  .save-btn { width: 100%; margin-top: 18px; padding: 14px; background: var(--navy); color: var(--cream); border: none; border-radius: 4px; font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 0.08em; cursor: pointer; }
+  .save-confirm { text-align: center; font-family: 'Crimson Pro', serif; font-style: italic; color: var(--gold); font-size: 0.9rem; margin-top: 8px; height: 20px; }
+
+  /* Month grid */
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 16px; }
+  .month-day-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-family: 'Crimson Pro', serif; font-size: 0.75rem; cursor: pointer; border: 1px solid var(--grid); background: var(--white); }
+  .month-day-cell.today { border-color: var(--gold); color: var(--gold); font-weight: bold; }
+  .month-day-cell.has-data { background: var(--navy); color: var(--white); border-color: var(--navy); }
+  .month-day-cell.future { opacity: 0.35; cursor: default; }
+  .month-day-cell.empty { border: none; background: transparent; cursor: default; }
+
+  .progress-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .progress-name { font-family: 'Crimson Pro', serif; font-size: 0.85rem; width: 90px; flex-shrink: 0; }
+  .progress-bar-wrap { flex: 1; height: 8px; background: var(--cream-dark); border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 4px; }
+  .progress-bar-fill.good { background: var(--navy); }
+  .progress-bar-fill.bad { background: var(--red); }
+  .progress-pct { font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: var(--muted); width: 30px; text-align: right; }
+
+  /* Graphs */
+  .graph-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .graph-toggle button { flex: 1; padding: 8px; border: 1px solid var(--navy); border-radius: 4px; background: transparent; color: var(--navy); font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; }
+  .graph-toggle button.active { background: var(--navy); color: var(--cream); }
+  .graph-wrap { background: var(--white); border: 1px solid var(--grid); border-radius: 4px; padding: 16px 8px 12px 42px; position: relative; margin-bottom: 20px; }
+  canvas.graph-canvas { width: 100%; display: block; }
+  .y-axis-labels { position: absolute; left: 4px; top: 16px; bottom: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+  .y-label { font-family: 'Crimson Pro', serif; font-size: 0.62rem; color: var(--muted); text-align: right; width: 32px; }
+
+  /* Settings */
+  .settings-section { margin-bottom: 20px; }
+  .habit-edit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; background: var(--white); border: 1px solid var(--grid); border-radius: 4px; padding: 8px 10px; }
+  .habit-edit-row input[type="text"] { flex: 1; border: none; outline: none; font-family: 'Crimson Pro', serif; font-size: 1rem; background: transparent; color: var(--text); }
+  .habit-type-badge { font-family: 'Playfair Display', serif; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; cursor: pointer; flex-shrink: 0; }
+  .habit-type-badge.good { background: var(--navy); color: var(--cream); }
+  .habit-type-badge.bad { background: var(--red); color: var(--cream); }
+  .delete-btn { background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; padding: 0 2px; flex-shrink: 0; }
+  .delete-btn:hover { color: var(--red); }
+  .add-habit-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-habit-row input { flex: 1; padding: 9px 12px; border: 1px dashed var(--grid); border-radius: 4px; font-family: 'Crimson Pro', serif; font-size: 1rem; background: var(--white); outline: none; }
+  .add-habit-row select { padding: 9px 8px; border: 1px solid var(--grid); border-radius: 4px; font-family: 'Crimson Pro', serif; font-size: 0.9rem; background: var(--white); outline: none; color: var(--text); }
+  .add-btn { padding: 9px 14px; background: var(--navy); color: var(--cream); border: none; border-radius: 4px; font-family: 'Playfair Display', serif; font-size: 0.8rem; cursor: pointer; }
+
+  .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .month-nav button { background: var(--navy); color: var(--cream); border: none; padding: 6px 14px; border-radius: 4px; font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; }
+  .month-nav span { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); }
+
+  .day-count { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 12px; }
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a2744">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Corrina 364">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Corrina · 364</h1>
+    <p id="header-month">June 2026</p>
+    <div class="tagline">Keep believing.</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('today')">Today</div>
+    <div class="tab" onclick="switchTab('month')">Month</div>
+    <div class="tab" onclick="switchTab('graphs')">Graphs</div>
+    <div class="tab" onclick="switchTab('settings')">Habits</div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="tab-content active" id="tab-today">
+    <div class="day-nav">
+      <button onclick="changeDay(-1)">&#8592;</button>
+      <div class="day-display">
+        <span id="day-name"></span>
+        <span id="day-sub"></span>
+      </div>
+      <button onclick="changeDay(1)">&#8594;</button>
+    </div>
+    <div class="day-count" id="day-count"></div>
+
+    <div class="section-label">Memorable Moment</div>
+    <div class="moment-box">
+      <textarea id="moment-input" rows="2" placeholder="One sentence from today…" oninput="autoSave()"></textarea>
+    </div>
+
+    <div class="section-label">Habits</div>
+    <div class="habit-label-row good">Good Habits</div>
+    <div id="good-habits-list"></div>
+    <div class="habit-label-row bad" style="margin-top:10px;">Bad Habits · aim for blank</div>
+    <div id="bad-habits-list"></div>
+
+    <div class="section-label">Sleep</div>
+    <div class="graph-inputs">
+      <div class="graph-input-box">
+        <label>Hours Slept</label>
+        <input type="number" id="sleep-hours" min="0" max="12" step="0.5" placeholder="7.5" oninput="autoSave()">
+        <div class="unit">hrs</div>
+      </div>
+      <div class="graph-input-box">
+        <label>Sleep Score</label>
+        <input type="number" id="sleep-score" min="0" max="100" step="1" placeholder="87" oninput="autoSave()">
+        <div class="unit">/ 100</div>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveDay()">Save Day ✓</button>
+    <div class="save-confirm" id="save-confirm"></div>
+  </div>
+
+  <!-- MONTH -->
+  <div class="tab-content" id="tab-month">
+    <div class="month-nav">
+      <button onclick="changeViewMonth(-1)">&#8592;</button>
+      <span id="view-month-label"></span>
+      <button onclick="changeViewMonth(1)">&#8594;</button>
+    </div>
+    <div class="month-grid" id="month-grid"></div>
+    <div class="section-label">Habit Completion</div>
+    <div id="progress-bars"></div>
+  </div>
+
+  <!-- GRAPHS -->
+  <div class="tab-content" id="tab-graphs">
+    <div class="month-nav">
+      <button onclick="changeViewMonth(-1)">&#8592;</button>
+      <span id="graph-month-label"></span>
+      <button onclick="changeViewMonth(1)">&#8594;</button>
+    </div>
+    <div class="graph-toggle">
+      <button class="active" onclick="showGraph('hours')">Sleep Hours</button>
+      <button onclick="showGraph('score')">Sleep Score</button>
+    </div>
+    <div class="graph-wrap">
+      <div class="y-axis-labels" id="y-labels"></div>
+      <canvas class="graph-canvas" id="graph-canvas" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- SETTINGS / HABITS -->
+  <div class="tab-content" id="tab-settings">
+    <div class="section-label">Your Habits · tap type to toggle</div>
+    <div class="settings-section" id="habit-edit-list"></div>
+    <div class="add-habit-row">
+      <input type="text" id="new-habit-name" placeholder="New habit name…">
+      <select id="new-habit-type">
+        <option value="good">Good</option>
+        <option value="bad">Bad</option>
+      </select>
+      <button class="add-btn" onclick="addHabit()">Add</button>
+    </div>
+    <div style="margin-top:20px;">
+      <button class="save-btn" onclick="saveHabits()">Save Habit List</button>
+      <div class="save-confirm" id="habit-save-confirm"></div>
+    </div>
+    <div class="section-label" style="margin-top:24px;">Month Settings</div>
+    <div style="background:var(--white);border:1px solid var(--grid);border-radius:4px;padding:12px;">
+      <p style="font-family:'Crimson Pro',serif;font-size:0.9rem;color:var(--muted);font-style:italic;margin-bottom:10px;">Change the current month label</p>
+      <div style="display:flex;gap:8px;">
+        <select id="month-select" style="flex:1;padding:8px;border:1px solid var(--grid);border-radius:4px;font-family:'Crimson Pro',serif;font-size:1rem;background:var(--white);outline:none;">
+          <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+          <option value="3">April</option><option value="4">May</option><option value="5" selected>June</option>
+          <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+          <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+        </select>
+        <input type="number" id="year-input" value="2026" min="2026" max="2030" style="width:80px;padding:8px;border:1px solid var(--grid);border-radius:4px;font-family:'Crimson Pro',serif;font-size:1rem;background:var(--white);outline:none;">
+        <button class="add-btn" onclick="setMonth()">Set</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'corrina364_v1';
+
+const DEFAULT_HABITS = [
+  {name:"Walking", type:"good"},
+  {name:"Stretching", type:"good"},
+  {name:"Meditation", type:"good"},
+  {name:"Read 5 pages", type:"good"},
+  {name:"Bible 30 mins", type:"good"},
+  {name:"Drink 2L water", type:"good"},
+  {name:"Up on alarm", type:"good"},
+  {name:"Writing", type:"good"},
+  {name:"Filming", type:"good"},
+  {name:"Upload to social", type:"good"},
+  {name:"Gratitude", type:"good"},
+  {name:"Scrolling", type:"bad"},
+  {name:"Sweets", type:"bad"},
+];
+
+let state = {
+  habits: DEFAULT_HABITS,
+  data: {},           // keyed "YYYY-M-D"
+  currentMonth: 5,    // 0-indexed
+  currentYear: 2026,
+};
+
+let currentDay = 1;
+let viewMonth, viewYear;
+let currentGraph = 'hours';
+
+// ── Persistence ─────────────────────────────────────────────────────────────
+function load() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) state = Object.assign(state, JSON.parse(s));
+  } catch(e) {}
+  viewMonth = state.currentMonth;
+  viewYear = state.currentYear;
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+// ── Key helpers ──────────────────────────────────────────────────────────────
+function dayKey(year, month, day) { return `${year}-${month}-${day}`; }
+function getDayData(year, month, day) {
+  const k = dayKey(year, month, day);
+  if (!state.data[k]) state.data[k] = {moment:'', habits:{}, sleepHours:'', sleepScore:''};
+  return state.data[k];
+}
+function daysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
+function monthName(month) {
+  return ['January','February','March','April','May','June','July','August','September','October','November','December'][month];
+}
+function dayOfWeek(year, month, day) { return new Date(year, month, day).getDay(); }
+
+// ── Today tab ────────────────────────────────────────────────────────────────
+function updateDayDisplay() {
+  const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dow = dayOfWeek(state.currentYear, state.currentMonth, currentDay);
+  document.getElementById('day-name').textContent = `${names[dow]} · ${currentDay} ${monthName(state.currentMonth)}`;
+  document.getElementById('day-sub').textContent = `${state.currentYear}`;
+
+  // Day count from June 1 2026
+  const start = new Date(2026, 5, 1);
+  const cur = new Date(state.currentYear, state.currentMonth, currentDay);
+  const diff = Math.round((cur - start) / 86400000);
+  const remaining = 364 - diff;
+  document.getElementById('day-count').textContent =
+    diff >= 0 && diff <= 364 ? `Day ${diff + 1} of 365 · ${remaining} days remaining` : '';
+
+  document.getElementById('header-month').textContent = `${monthName(state.currentMonth)} ${state.currentYear}`;
+}
+
+function changeDay(dir) {
+  const max = daysInMonth(state.currentYear, state.currentMonth);
+  const nd = currentDay + dir;
+  if (nd < 1 || nd > max) return;
+  currentDay = nd;
+  renderToday();
+}
+
+function renderToday() {
+  updateDayDisplay();
+  const d = getDayData(state.currentYear, state.currentMonth, currentDay);
+  document.getElementById('moment-input').value = d.moment || '';
+  document.getElementById('sleep-hours').value = d.sleepHours || '';
+  document.getElementById('sleep-score').value = d.sleepScore || '';
+  renderHabits(d);
+}
+
+function renderHabits(d) {
+  const goodEl = document.getElementById('good-habits-list');
+  const badEl = document.getElementById('bad-habits-list');
+  goodEl.innerHTML = ''; badEl.innerHTML = '';
+  state.habits.forEach(h => {
+    const checked = d.habits[h.name] || false;
+    const row = document.createElement('div');
+    row.className = `habit-row ${h.type}${checked ? ' checked' : ''}`;
+    row.innerHTML = `<span class="habit-name">${h.name}</span><div class="habit-check"><span class="checkmark">✓</span></div>`;
+    row.onclick = () => {
+      const dd = getDayData(state.currentYear, state.currentMonth, currentDay);
+      dd.habits[h.name] = !dd.habits[h.name];
+      row.classList.toggle('checked');
+      save();
+    };
+    (h.type === 'good' ? goodEl : badEl).appendChild(row);
+  });
+}
+
+function autoSave() {
+  const d = getDayData(state.currentYear, state.currentMonth, currentDay);
+  d.moment = document.getElementById('moment-input').value;
+  d.sleepHours = document.getElementById('sleep-hours').value;
+  d.sleepScore = document.getElementById('sleep-score').value;
+  save();
+}
+
+function saveDay() {
+  autoSave();
+  const el = document.getElementById('save-confirm');
+  el.textContent = '✓ Saved · Keep believing.';
+  setTimeout(() => el.textContent = '', 2200);
+}
+
+// ── Month tab ─────────────────────────────────────────────────────────────────
+function changeViewMonth(dir) {
+  viewMonth += dir;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderMonthGrid();
+  renderProgressBars();
+  renderGraph();
+  document.getElementById('view-month-label').textContent = `${monthName(viewMonth)} ${viewYear}`;
+  document.getElementById('graph-month-label').textContent = `${monthName(viewMonth)} ${viewYear}`;
+}
+
+function renderMonthGrid() {
+  const grid = document.getElementById('month-grid');
+  grid.innerHTML = '';
+  const days = daysInMonth(viewYear, viewMonth);
+  const firstDow = dayOfWeek(viewYear, viewMonth, 1);
+  const today = new Date();
+
+  // Day name headers
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => {
+    const h = document.createElement('div');
+    h.style.cssText = 'text-align:center;font-family:"Playfair Display",serif;font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);padding:4px 0;';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // Empty cells
+  for (let i = 0; i < firstDow; i++) {
+    const e = document.createElement('div');
+    e.className = 'month-day-cell empty';
+    grid.appendChild(e);
+  }
+
+  for (let day = 1; day <= days; day++) {
+    const cell = document.createElement('div');
+    cell.className = 'month-day-cell';
+    cell.textContent = day;
+    const k = dayKey(viewYear, viewMonth, day);
+    const d = state.data[k];
+    const isToday = today.getDate()===day && today.getMonth()===viewMonth && today.getFullYear()===viewYear;
+    const isFuture = new Date(viewYear, viewMonth, day) > today;
+    const hasData = d && (d.moment || d.sleepHours || Object.values(d.habits||{}).some(v=>v));
+    if (isToday) cell.classList.add('today');
+    if (hasData) cell.classList.add('has-data');
+    if (isFuture) cell.classList.add('future');
+    cell.onclick = () => {
+      if (!isFuture) {
+        currentDay = day;
+        state.currentMonth = viewMonth;
+        state.currentYear = viewYear;
+        switchTab('today');
+        renderToday();
+      }
+    };
+    grid.appendChild(cell);
+  }
+  document.getElementById('view-month-label').textContent = `${monthName(viewMonth)} ${viewYear}`;
+}
+
+function renderProgressBars() {
+  const el = document.getElementById('progress-bars');
+  el.innerHTML = '';
+  const days = daysInMonth(viewYear, viewMonth);
+  let daysLogged = 0;
+  for (let d = 1; d <= days; d++) {
+    const k = dayKey(viewYear, viewMonth, d);
+    if (state.data[k]) daysLogged++;
+  }
+  if (!daysLogged) {
+    el.innerHTML = '<p style="font-style:italic;color:var(--muted);font-size:0.9rem;padding:8px 0;">No data yet for this month.</p>';
+    return;
+  }
+  state.habits.forEach(h => {
+    let count = 0;
+    for (let d = 1; d <= days; d++) {
+      const k = dayKey(viewYear, viewMonth, d);
+      if (state.data[k]?.habits?.[h.name]) count++;
+    }
+    const pct = Math.round((count / daysLogged) * 100);
+    const row = document.createElement('div');
+    row.className = 'progress-row';
+    row.innerHTML = `
+      <div class="progress-name">${h.name}</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill ${h.type}" style="width:${pct}%"></div></div>
+      <div class="progress-pct">${pct}%</div>`;
+    el.appendChild(row);
+  });
+}
+
+// ── Graphs tab ────────────────────────────────────────────────────────────────
+function showGraph(type) {
+  currentGraph = type;
+  document.querySelectorAll('.graph-toggle button').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&type==='hours')||(i===1&&type==='score'));
+  });
+  renderGraph();
+}
+
+function renderGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = 200;
+  canvas.width = W; canvas.height = H;
+  const isHours = currentGraph === 'hours';
+  const maxVal = isHours ? 12 : 100;
+  const ticks = isHours ? [12,10,8,6,4,2,0] : [100,80,60,40,20,0];
+  const yLabels = document.getElementById('y-labels');
+  yLabels.innerHTML = '';
+  ticks.forEach(t => {
+    const s = document.createElement('div');
+    s.className = 'y-label';
+    s.textContent = t;
+    yLabels.appendChild(s);
+  });
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#e8e0d0'; ctx.lineWidth=0.5;
+  ticks.forEach(t => {
+    const y = H - (t/maxVal)*H;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  });
+  const days = daysInMonth(viewYear, viewMonth);
+  const points = [];
+  for (let day=1; day<=days; day++) {
+    const k = dayKey(viewYear, viewMonth, day);
+    const d = state.data[k];
+    if (d) {
+      const val = isHours ? parseFloat(d.sleepHours) : parseFloat(d.sleepScore);
+      if (!isNaN(val)) {
+        const x = ((day-1)/(days-1))*W;
+        const y = H-(val/maxVal)*H;
+        points.push({x,y});
+      }
+    }
+  }
+  if (!points.length) {
+    ctx.fillStyle='#b0a898'; ctx.font='italic 14px Georgia,serif'; ctx.textAlign='center';
+    ctx.fillText('No data yet',W/2,H/2); return;
+  }
+  if (points.length>1) {
+    ctx.beginPath(); ctx.strokeStyle='#1a2744'; ctx.lineWidth=1.5; ctx.lineJoin='round';
+    ctx.moveTo(points[0].x,points[0].y);
+    points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+  }
+  points.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2); ctx.fillStyle='#1a2744'; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,Math.PI*2); ctx.fillStyle='#f5f0e8'; ctx.fill();
+  });
+  document.getElementById('graph-month-label').textContent = `${monthName(viewMonth)} ${viewYear}`;
+}
+
+// ── Settings tab ──────────────────────────────────────────────────────────────
+function renderHabitEditor() {
+  const el = document.getElementById('habit-edit-list');
+  el.innerHTML = '';
+  state.habits.forEach((h, i) => {
+    const row = document.createElement('div');
+    row.className = 'habit-edit-row';
+    row.innerHTML = `
+      <input type="text" value="${h.name}" oninput="state.habits[${i}].name=this.value">
+      <div class="habit-type-badge ${h.type}" onclick="toggleType(${i})">${h.type}</div>
+      <button class="delete-btn" onclick="deleteHabit(${i})">✕</button>`;
+    el.appendChild(row);
+  });
+}
+
+function toggleType(i) {
+  state.habits[i].type = state.habits[i].type === 'good' ? 'bad' : 'good';
+  renderHabitEditor();
+}
+
+function deleteHabit(i) {
+  state.habits.splice(i, 1);
+  renderHabitEditor();
+}
+
+function addHabit() {
+  const name = document.getElementById('new-habit-name').value.trim();
+  const type = document.getElementById('new-habit-type').value;
+  if (!name) return;
+  state.habits.push({name, type});
+  document.getElementById('new-habit-name').value = '';
+  renderHabitEditor();
+}
+
+function saveHabits() {
+  save();
+  const el = document.getElementById('habit-save-confirm');
+  el.textContent = '✓ Habits saved';
+  setTimeout(() => el.textContent = '', 2000);
+}
+
+function setMonth() {
+  state.currentMonth = parseInt(document.getElementById('month-select').value);
+  state.currentYear = parseInt(document.getElementById('year-input').value);
+  viewMonth = state.currentMonth;
+  viewYear = state.currentYear;
+  currentDay = 1;
+  save();
+  renderToday();
+  document.getElementById('header-month').textContent = `${monthName(state.currentMonth)} ${state.currentYear}`;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['today','month','graphs','settings'][i]===name);
+  });
+  document.querySelectorAll('.tab-content').forEach(tc => {
+    tc.classList.toggle('active', tc.id===`tab-${name}`);
+  });
+  if (name==='month') { renderMonthGrid(); renderProgressBars(); }
+  if (name==='graphs') { renderGraph(); }
+  if (name==='settings') renderHabitEditor();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+load();
+const now = new Date();
+if (now.getFullYear()===state.currentYear && now.getMonth()===state.currentMonth) {
+  currentDay = now.getDate();
+} else {
+  currentDay = 1;
+}
+renderToday();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Corrina \u00b7 364",
+  "short_name": "Corrina 364",
+  "description": "Daily habit tracker \u00b7 365 day rebuild",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#1a2744",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
